@@ -1,0 +1,24 @@
+server:
+  port: 8080
+logging:
+  level:
+    org.atmosphere: warn
+
+spring:
+  application:
+    name: automechanics
+  datasource:
+    url: jdbc:postgresql://localhost:6000/automechanics
+    username: postgres
+    password: postgres
+    name: automechanics
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Launch the default browser when starting the application in development mode
+vaadin:
+  launch-browser: true
+

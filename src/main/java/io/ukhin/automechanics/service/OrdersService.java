@@ -4,6 +4,8 @@ import io.ukhin.automechanics.model.Order;
 import io.ukhin.automechanics.repository.OrderRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.crudui.crud.CrudListener;
@@ -45,7 +47,7 @@ public OrdersService(EntityManager em, OrderRepository orderRepository) {
         return orderRepository.findOrderById(id);
     }
 
-    public Collection<Order> findByFilters(String client, String car, Order.Status status) {
+    public Collection<Order> findByFilters(String client, String car, Order.Status status, Date date) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         var query = cb.createQuery(Order.class);
         var root = query.from(Order.class);
@@ -64,18 +66,19 @@ public OrdersService(EntityManager em, OrderRepository orderRepository) {
         var brandModelConcat = cb.concat(root.get("car").get("brand"), " ");
         brandModelConcat = cb.concat(brandModelConcat, root.get("car").get("model"));
 
-        if (status == null) {
-            query.select(root).where(
-                    cb.like(nameSurnameConcat, "%" + clientName + "%" + clientSurname),
-                    cb.like(brandModelConcat, "%" + carBrand + "%" + carModel)
-            );
-            return em.createQuery(query).getResultList();
+        ArrayList<Predicate> criteria = new ArrayList<>();
+        criteria.add(cb.like(nameSurnameConcat, "%" + clientName + "%" + clientSurname));
+        criteria.add(cb.like(brandModelConcat, "%" + carBrand + "%" + carModel));
+
+        if (status != null) {
+            criteria.add(cb.like(root.get("status"), "%" + status.name() + "%"));
         }
-        query.select(root).where(
-                cb.like(nameSurnameConcat, "%" + clientName + "%" + clientSurname),
-                cb.like(brandModelConcat, "%" + carBrand + "%" + carModel),
-                cb.like(root.get("status"), "%" + status.name() + "%")
-        );
+
+        if (date != null) {
+            criteria.add(cb.equal(root.get("date"), date));
+        }
+
+        query.select(root).where(criteria.toArray(Predicate[]::new));
         return em.createQuery(query).getResultList();
     }
 

@@ -2,6 +2,7 @@ package io.ukhin.automechanics.controller;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.Icon;
@@ -19,6 +20,9 @@ import io.ukhin.automechanics.service.OrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
+
+import java.sql.Date;
+import java.time.ZoneId;
 
 @Route("orders")
 public class OrderController extends HorizontalLayout {
@@ -38,6 +42,12 @@ public class OrderController extends HorizontalLayout {
         statusFilter.setItems(Order.Status.values());
         statusFilter.setPlaceholder("Filter by status");
         statusFilter.setRenderer(createStatusRenderer());
+        statusFilter.setClearButtonVisible(true);
+
+        DatePicker dateFilter = new DatePicker();
+        dateFilter.setPlaceholder("Filter by date");
+        dateFilter.setClearButtonVisible(true);
+
 
         Button viewOrderButton = getButton(grid);
        grid.asSingleSelect().addValueChangeListener(e -> {
@@ -53,7 +63,7 @@ public class OrderController extends HorizontalLayout {
                 .setTooltipGenerator(order -> order.getStatus().name()).setHeader("Status");
         grid.addColumn(Order::getPrice).setHeader("Price").setSortable(true);
 
-        orderGrid.getCrudLayout().addFilterComponents(clientFilter, carFilter, statusFilter);
+        orderGrid.getCrudLayout().addFilterComponents(dateFilter, clientFilter, carFilter, statusFilter);
         orderGrid.getCrudLayout().addToolbarComponent(viewOrderButton);
 
         var mainView = new VerticalLayout();
@@ -65,13 +75,17 @@ public class OrderController extends HorizontalLayout {
 
         orderGrid.setOperations(() -> orderService.findByFilters(clientFilter.getValue(),
                         carFilter.getValue(),
-                        statusFilter.getValue()),
+                        statusFilter.getValue(),
+                        dateFilter.getValue() == null ? null :
+                        Date.from(dateFilter.getValue()
+                                .atStartOfDay(ZoneId.systemDefault()).toInstant())),
                 orderService::add,
                 orderService::update,
                 orderService::delete);
 
 
         clientFilter.addValueChangeListener(e -> orderGrid.refreshGrid());
+        dateFilter.addValueChangeListener(e -> orderGrid.refreshGrid());
         carFilter.addValueChangeListener(e -> orderGrid.refreshGrid());
         statusFilter.addValueChangeListener(e -> orderGrid.refreshGrid());
     }

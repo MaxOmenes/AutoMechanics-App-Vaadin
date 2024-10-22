@@ -53,6 +53,15 @@
             <artifactId>crudui</artifactId>
             <version>7.1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-charts-flow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.xdev</groupId>
+            <artifactId>vaadin-grid-filter</artifactId>
+            <version>2.0.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.vaadin</groupId>

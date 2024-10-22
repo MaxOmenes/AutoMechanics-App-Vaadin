@@ -17,4 +17,6 @@ public interface ClientRepository extends JpaRepository<Client, UUID>, JpaSpecif
     @Query("SELECT c FROM Car c where c.client.id = (:id)")
     List<Car> findCarsByClientId(@Param("id") Long id);
 
+    List<Client> findByNameContainingIgnoreCase(String name);
+
 }

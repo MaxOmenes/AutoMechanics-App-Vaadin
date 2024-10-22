@@ -17,14 +17,14 @@ public class Car {
     private String vin;
     private String brand;
     private String model;
-    private String year;
+    private Integer year;
     private String number;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @OneToMany(mappedBy = "car")
+    @OneToMany(mappedBy = "car", fetch = FetchType.EAGER)
     private List<Order> orders;
 
 }

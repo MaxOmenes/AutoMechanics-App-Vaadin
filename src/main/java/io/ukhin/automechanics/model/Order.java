@@ -28,7 +28,7 @@ public class Order {
     @JoinColumn(name = "car_vin")
     private Car car;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
     private List<Part> parts;
 
     public enum Status {
